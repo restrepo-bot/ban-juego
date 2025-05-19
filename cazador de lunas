@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ban y el Cazador de Lunas</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+    }
+    canvas {
+      display: block;
+      background-size: cover;
+    }
+    #message {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 24px;
+      text-shadow: 2px 2px 4px black;
+      background: rgba(0,0,0,0.5);
+      padding: 10px 20px;
+      border-radius: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+<canvas id="gameCanvas" width="800" height="600"></canvas>
+<div id="message"></div>
+<audio id="music" src="metal.mp3" loop autoplay></audio>
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const messageBox = document.getElementById("message");
+const music = document.getElementById("music");
+
+const backgrounds = [
+  'bg1.jpg', 'bg2.jpg', 'bg3.jpg', 'bg4.jpg', 'bg5.jpg',
+  'bg6.jpg', 'bg7.jpg', 'bg8.jpg', 'bg9.jpg', 'bg10.jpg'
+];
+
+const messages = [
+  "Eso amor ya pásate el primero",
+  "Eso cielo el segundo",
+  "Te amo, tú puedes",
+  "Eso caballero",
+  "Ya casi cielo",
+  "Te amo demasiado",
+  "Dale campeón",
+  "Listo cielo ya casi",
+  "Tu fan #1",
+  "Lo lograste, estoy orgullosa de ti"
+];
+
+let ban = { x: 400, y: 300, size: 30 };
+let moons = [];
+let level = 0;
+let bg = new Image();
+
+function startLevel() {
+  bg.src = backgrounds[level];
+  ban.x = 400;
+  ban.y = 300;
+  moons = [];
+  for (let i = 0; i < level + 3; i++) {
+    moons.push({
+      x: Math.random() * 760,
+      y: Math.random() * 560,
+      size: 20
+    });
+  }
+  draw();
+}
+
+function draw() {
+  bg.onload = () => ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+  // Draw Ban
+  ctx.fillStyle = "#ffcc00";
+  ctx.beginPath();
+  ctx.arc(ban.x, ban.y, ban.size, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Draw Moons
+  ctx.fillStyle = "white";
+  moons.forEach(moon => {
+    ctx.beginPath();
+    ctx.arc(moon.x, moon.y, moon.size, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+document.addEventListener("keydown", (e) => {
+  const speed = 10;
+  if (e.key === "ArrowUp") ban.y -= speed;
+  if (e.key === "ArrowDown") ban.y += speed;
+  if (e.key === "ArrowLeft") ban.x -= speed;
+  if (e.key === "ArrowRight") ban.x += speed;
+  checkMoons();
+  draw();
+});
+
+function checkMoons() {
+  moons = moons.filter(moon => {
+    const dx = moon.x - ban.x;
+    const dy = moon.y - ban.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    return dist > ban.size + moon.size;
+  });
+  if (moons.length === 0) nextLevel();
+}
+
+function nextLevel() {
+  messageBox.innerText = messages[level];
+  messageBox.style.display = 'block';
+  setTimeout(() => {
+    messageBox.style.display = 'none';
+    level++;
+    if (level < 10) startLevel();
+  }, 3000);
+}
+
+startLevel();
+</script>
+</body>
+</html>
